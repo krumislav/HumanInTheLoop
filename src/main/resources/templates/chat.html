@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Human-in-the-Loop LLM Chat</title>
+
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">HI</div>
+            <div>
+                <h5>Human Loop</h5>
+                <span>LLM Monitoring</span>
+            </div>
+        </div>
+
+        <a href="/" class="new-chat-btn">+ New Chat</a>
+
+        <div class="sidebar-footer">
+            <small>Project</small>
+            <p>Human-in-the-Loop</p>
+        </div>
+    </aside>
+
+    <main class="chat-main">
+
+        <header class="chat-header">
+            <div>
+                <h2>LLM Chat Review</h2>
+                <p>Send a prompt, review the model answer, approve, reject, or correct it.</p>
+            </div>
+        </header>
+
+        <section class="chat-box">
+
+            <div th:if="${#lists.isEmpty(messages)}" class="empty-state">
+                <h3>How can I help you today?</h3>
+                <p>Send your first prompt to the model.</p>
+            </div>
+
+            <div th:each="msg : ${messages}" class="message-group">
+
+                <div class="message-row user-row">
+                    <div class="bubble user-bubble">
+                        <div class="message-label">You</div>
+                        <p th:text="${msg.userPrompt}"></p>
+                    </div>
+                </div>
+
+                <div class="message-row assistant-row">
+                    <div class="avatar">AI</div>
+
+                    <div class="bubble assistant-bubble">
+                        <div class="message-top">
+                            <div class="message-label">Assistant</div>
+
+                            <span class="status-badge"
+                                  th:text="${msg.status}"
+                                  th:classappend="${msg.status.name() == 'APPROVED'} ? ' approved' :
+                                                  (${msg.status.name() == 'REJECTED'} ? ' rejected' :
+                                                  (${msg.status.name() == 'CORRECTED'} ? ' corrected' : ' pending'))">
+                            </span>
+                        </div>
+
+                        <small class="model-name" th:text="${msg.modelName}"></small>
+
+                        <p class="assistant-response" th:text="${msg.assistantResponse}"></p>
+
+                        <div th:if="${msg.correctedResponse != null}" class="corrected-box">
+                            <div class="message-label">Corrected answer</div>
+                            <p th:text="${msg.correctedResponse}"></p>
+                        </div>
+
+                        <div th:if="${msg.status.name() == 'PENDING'}">
+
+                            <div class="review-actions">
+                                <form th:action="@{/chat/{id}/approve(id=${msg.id})}" method="post">
+                                    <button class="approve-btn" type="submit">Correct answer</button>
+                                </form>
+
+                                <form th:action="@{/chat/{id}/reject(id=${msg.id})}" method="post">
+                                    <button class="reject-btn" type="submit">Wrong answer</button>
+                                </form>
+                            </div>
+
+                            <form th:action="@{/chat/{id}/correct(id=${msg.id})}" method="post" class="correction-form">
+                                <textarea name="correctedResponse"
+                                          placeholder="Write the corrected answer here..."
+                                          required></textarea>
+
+                                <button class="correct-btn" type="submit">Save fixed answer</button>
+                            </form>
+
+                        </div>
+
+                        <div th:if="${msg.status.name() != 'PENDING'}" class="review-complete">
+                            Review saved.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="input-area">
+            <form th:action="@{/chat/send}" method="post" class="prompt-form">
+
+                <div class="model-wrapper">
+                    <label for="model">Choose model</label>
+                    <select name="model" id="model" class="model-select">
+                        <option th:each="model : ${modelsss}"
+                                th:value="${model.model}"
+                                th:text="${model.modelName}">
+                        </option>
+                    </select>
+                </div>
+
+                <textarea name="prompt" placeholder="Send a message..." required></textarea>
+
+                <button type="submit">Send</button>
+            </form>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
