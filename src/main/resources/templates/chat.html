@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Human-in-the-Loop LLM Chat</title>
-
     <link rel="stylesheet" th:href="@{/css/chat.css}">
 </head>
 
@@ -20,7 +19,12 @@
             </div>
         </div>
 
-        <a href="/" class="new-chat-btn">+ New Chat</a>
+        <a href="/chat" class="new-chat-btn">+ New Chat</a>
+
+        <!-- Navigation to Papers page -->
+        <a href="/papers" class="new-chat-btn" style="margin-top: 10px; background-color: #4a5568;">
+            📄 Scientific Papers
+        </a>
 
         <div class="sidebar-footer">
             <small>Project</small>
@@ -38,6 +42,10 @@
         </header>
 
         <section class="chat-box">
+
+            <div th:if="${param.error == 'ratelimit'}" class="rate-limit-banner">
+                Rate limit reached. Please wait a moment and try again.
+            </div>
 
             <div th:if="${#lists.isEmpty(messages)}" class="empty-state">
                 <h3>How can I help you today?</h3>
@@ -93,7 +101,6 @@
                                 <textarea name="correctedResponse"
                                           placeholder="Write the corrected answer here..."
                                           required></textarea>
-
                                 <button class="correct-btn" type="submit">Save fixed answer</button>
                             </form>
 
@@ -117,7 +124,8 @@
                     <select name="model" id="model" class="model-select">
                         <option th:each="model : ${modelsss}"
                                 th:value="${model.model}"
-                                th:text="${model.modelName}">
+                                th:text="${model.modelName}"
+                                th:selected="${model.model == 'tencent/hy3-preview:free'}">
                         </option>
                     </select>
                 </div>
@@ -132,5 +140,9 @@
 
 </div>
 
+<script>
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+</script>
 </body>
 </html>

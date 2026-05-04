@@ -19,13 +19,16 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    // @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String userPrompt;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    // @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String assistantResponse;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    // @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String correctedResponse;
 
     private String modelName;

@@ -2,9 +2,7 @@ package mk.ukim.finki.humanintheloopllm.controller;
 
 
 import mk.ukim.finki.humanintheloopllm.model.ModelAi;
-import mk.ukim.finki.humanintheloopllm.repository.ChatMessageRepository;
 import mk.ukim.finki.humanintheloopllm.service.ChatService;
-import mk.ukim.finki.humanintheloopllm.service.OpenRouterService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,44 +23,45 @@ public class ChatController {
     }
 
     @GetMapping("/")
+    public String root() {
+        return "redirect:/chat";
+    }
+
+    @GetMapping("/chat")
     public String chatPage(Model model) {
         model.addAttribute("messages", chatService.getAllMessages());
-
-        model.addAttribute("modelsss",modelList);
-        model.addAttribute("models", List.of(
-                "google/gemma-4-26b-a4b-it:free",
-                "nvidia/nemotron-3-super-120b-a12b:free",
-                "qwen/qwen3-next-80b-a3b-instruct:free",
-                "meta-llama/llama-3.3-70b-instruct:free"
-        ));
-
+        model.addAttribute("modelsss", modelList);
         return "chat";
     }
 
     @PostMapping("/chat/send")
     public String sendMessage(@RequestParam String prompt,
                               @RequestParam String model) {
-        chatService.sendMessage(prompt, model);
-        return "redirect:/";
+        try {
+            chatService.sendMessage(prompt, model);
+        } catch (RuntimeException e) {
+            return "redirect:/chat?error=ratelimit";
+        }
+        return "redirect:/chat";
     }
 
     @PostMapping("/chat/{id}/approve")
     public String approve(@PathVariable Long id) {
         chatService.approve(id);
-        return "redirect:/";
+        return "redirect:/chat";
     }
 
     @PostMapping("/chat/{id}/reject")
     public String reject(@PathVariable Long id) {
         chatService.reject(id);
-        return "redirect:/";
+        return "redirect:/chat";
     }
 
     @PostMapping("/chat/{id}/correct")
     public String correct(@PathVariable Long id,
                           @RequestParam String correctedResponse) {
         chatService.correct(id, correctedResponse);
-        return "redirect:/";
+        return "redirect:/chat";
     }
 }
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -24,13 +25,23 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatMessage sendMessage(String prompt, String model) {
+        String trimmed = prompt.trim();
+
+        Optional<ChatMessage> corrected = chatMessageRepository
+                .findFirstByUserPromptIgnoreCaseAndStatus(trimmed, ReviewStatus.CORRECTED);
+
+        Optional<ChatMessage> approved = chatMessageRepository
+                .findFirstByUserPromptIgnoreCaseAndStatus(trimmed, ReviewStatus.APPROVED);
+
+        if (corrected.isPresent()) return corrected.get();
+        if (approved.isPresent()) return approved.get();
+
         String response = openRouterService.ask(prompt, model);
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setUserPrompt(prompt);
         chatMessage.setAssistantResponse(response);
         chatMessage.setModelName(model);
-        chatMessage.setStatus(ReviewStatus.PENDING);
 
         return chatMessageRepository.save(chatMessage);
     }
@@ -72,4 +83,5 @@ public class ChatServiceImpl implements ChatService {
 
         return chatMessageRepository.save(msg);
     }
+
 }
