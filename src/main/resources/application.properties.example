@@ -1,0 +1,43 @@
+# spring.application.name=HumanInTheLoopLLM
+
+
+# spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=HumanInTheLoop;encrypt=true;trustServerCertificate=true
+# spring.datasource.username=sa
+# spring.datasource.password=1234
+# spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+
+
+
+# spring.jpa.hibernate.ddl-auto=update
+# spring.jpa.show-sql=true
+# spring.jpa.properties.hibernate.format_sql=true
+
+# server.port=8080
+
+# openrouter.api.key="YOUR API KEY"
+# openrouter.model=google/gemma-4-26b-a4b-it:free
+
+
+spring.application.name=HumanInTheLoopLLM
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/HumanInTheLoop
+spring.datasource.username=postgres
+spring.datasource.password=nova123
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+server.port=8080
+
+openrouter.api.key=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
+openrouter.model=google/gemma-4-26b-a4b-it:free
+
+# JWT Configuration
+jwt.secret=mySecretKeyForJWTTokenGenerationShouldBeAtLeast256BitsLongForHS256Algorithm
+jwt.expiration=86400000
+openrouter.api.key=YOUR_API_KEY_HERE
+spring.datasource.password=YOUR_PASSWORD_HERE
