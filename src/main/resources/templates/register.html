@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+      <html xmlns:th="http://www.thymeleaf.org">
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Register - Human in the Loop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #F4F4F0 0%, #DDD8CE 50%, #BCC7C4 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 50px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(60, 75, 82, 0.12);
+      max-width: 450px;
+      width: 100%;
+      border: 1px solid rgba(188, 199, 196, 0.3);
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #3C4B52 0%, #A9B5C2 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 25px;
+      box-shadow: 0 8px 24px rgba(60, 75, 82, 0.15);
+    }
+
+    h2 {
+      color: #3C4B52;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #8B7355;
+      margin-bottom: 35px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #3C4B52;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #BCC7C4;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background: #F4F4F0;
+      color: #3C4B52;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #A9B5C2;
+      background: white;
+    }
+
+    .btn-register {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #3C4B52 0%, #A9B5C2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+      box-shadow: 0 4px 16px rgba(60, 75, 82, 0.25);
+    }
+
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(60, 75, 82, 0.35);
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .links a {
+      color: #3C4B52;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+
+    .links a:hover {
+      color: #A9B5C2;
+    }
+
+    .error-message {
+      background: #DDD8CE;
+      color: #8B7355;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+      border-left: 4px solid #A6A8A6;
+    }
+
+    .success-message {
+      background: #BCC7C4;
+      color: #3C4B52;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+      border-left: 4px solid #A9B5C2;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">👤</div>
+  <h2>Create Account</h2>
+  <p class="subtitle">Join the monitoring system</p>
+
+  <div id="errorMessage" class="error-message" style="display: none;"></div>
+  <div id="successMessage" class="success-message" style="display: none;"></div>
+
+  <form id="registerForm">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required autocomplete="username">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6">
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" minlength="6">
+    </div>
+
+    <div class="form-group">
+      <label for="role">Role</label>
+      <select id="role" name="role" required>
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-register">Create Account</button>
+  </form>
+
+  <div class="links">
+    <a href="/login">Already have an account? Sign in</a>
+    <a href="/">← Back to Home</a>
+  </div>
+</div>
+
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const role = document.getElementById('role').value;
+
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      errorDiv.textContent = 'Passwords do not match!';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      errorDiv.textContent = 'Password must be at least 6 characters long!';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          role: role
+        })
+      });
+
+      if (response.ok) {
+        successDiv.textContent = 'Account created successfully! Redirecting to login...';
+        successDiv.style.display = 'block';
+
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        const errorText = await response.text();
+        errorDiv.textContent = errorText || 'Registration failed. Username might already exist.';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      errorDiv.textContent = 'Registration failed. Please try again.';
+      errorDiv.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>

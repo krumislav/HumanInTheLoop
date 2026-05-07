@@ -1,38 +1,38 @@
 package mk.ukim.finki.humanintheloopllm.config;
 
-import jakarta.annotation.PostConstruct;
-
+import lombok.RequiredArgsConstructor;
 import mk.ukim.finki.humanintheloopllm.model.ModelAi;
+import mk.ukim.finki.humanintheloopllm.repository.ModelRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-
-// model.addAttribute("modelsname",List.of(
-//                            "Google Gemma 4",
-//                "Nvidia Nemotron 3",
-//                            "Qwen 3",
-//                            "Llama 3.3"));
-//        model.addAttribute("models", List.of(
-//                                   "google/gemma-4-26b-a4b-it:free",
-//                "nvidia/nemotron-3-super-120b-a12b:free",
-//                                   "qwen/qwen3-next-80b-a3b-instruct:free",
-//                                   "meta-llama/llama-3.3-70b-instruct:free"
-//));
-
 @Configuration
+@RequiredArgsConstructor
 public class ModelsInit {
 
     @Bean
-    public List<ModelAi> models(){
-        return List.of(
-                new ModelAi("google/gemma-4-26b-a4b-it:free","Google Gemma 4"),
-                new ModelAi("nvidia/nemotron-3-super-120b-a12b:free","Nvidia Nemotron 3"),
-                new ModelAi("qwen/qwen3-next-80b-a3b-instruct:free","Qwen 3"),
-                new ModelAi("meta-llama/llama-3.3-70b-instruct:free","Llama 3.3"),
-                new ModelAi("tencent/hy3-preview:free","Tencent hy3")
-        );
+    public CommandLineRunner initModels(ModelRepository modelRepository) {
+        return args -> {
+            if (modelRepository.count() == 0) {
+                List<ModelAi> models = List.of(
+                        createModel("openai/gpt-4o", "GPT-4 Omni"),
+                        createModel("anthropic/claude-3.5-sonnet", "Claude 3.5 Sonnet"),
+                        createModel("google/gemini-pro", "Google Gemini Pro"),
+                        createModel("meta-llama/llama-3.1-70b-instruct", "Llama 3.1 70B"),
+                        createModel("mistralai/mistral-large", "Mistral Large")
+                );
+                modelRepository.saveAll(models);
+            }
+        };
+    }
+
+    private ModelAi createModel(String modelName, String description) {
+        ModelAi model = new ModelAi();
+        model.setModelName(modelName);
+        model.setDescription(description);
+        return model;
     }
 }

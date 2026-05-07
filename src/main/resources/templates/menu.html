@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu - Human in the Loop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #F4F4F0 0%, #DDD8CE 50%, #BCC7C4 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 60px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(60, 75, 82, 0.12);
+      max-width: 600px;
+      width: 100%;
+      border: 1px solid rgba(188, 199, 196, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #3C4B52 0%, #A9B5C2 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(60, 75, 82, 0.15);
+    }
+
+    h1 {
+      color: #3C4B52;
+      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome {
+      color: #8B7355;
+      font-size: 16px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .menu-card {
+      background: linear-gradient(135deg, #F4F4F0 0%, #DDD8CE 100%);
+      border: 2px solid #BCC7C4;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(60, 75, 82, 0.15);
+      border-color: #A9B5C2;
+    }
+
+    .menu-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .menu-title {
+      color: #3C4B52;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .menu-description {
+      color: #8B7355;
+      font-size: 13px;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      color: #3C4B52;
+      border: 2px solid #BCC7C4;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #F4F4F0;
+      border-color: #A9B5C2;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">🏠</div>
+    <h1>Admin Menu</h1>
+    <p class="welcome" id="welcomeMessage">Welcome back!</p>
+  </div>
+
+  <div class="menu-grid">
+    <a href="/dashboard" class="menu-card">
+      <div class="menu-icon">📊</div>
+      <div class="menu-title">Dashboard</div>
+      <div class="menu-description">View statistics & analytics</div>
+    </a>
+
+    <a href="/chat" class="menu-card">
+      <div class="menu-icon">💬</div>
+      <div class="menu-title">Chat Review</div>
+      <div class="menu-description">Monitor LLM responses</div>
+    </a>
+
+    <a href="/papers" class="menu-card">
+      <div class="menu-icon">📄</div>
+      <div class="menu-title">Papers</div>
+      <div class="menu-description">Manage documents</div>
+    </a>
+
+    <a href="/" class="menu-card">
+      <div class="menu-icon">🏡</div>
+      <div class="menu-title">Home</div>
+      <div class="menu-description">Back to landing page</div>
+    </a>
+  </div>
+
+  <button onclick="logout()" class="logout-btn">Logout</button>
+</div>
+
+<script>
+  const username = localStorage.getItem('username');
+  if (username) {
+    document.getElementById('welcomeMessage').textContent = 'Welcome back, ' + username + '!';
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+  }
+</script>
+</body>
+</html>

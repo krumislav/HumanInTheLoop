@@ -45,4 +45,7 @@ public class ChatMessage {
         this.createdAt = LocalDateTime.now();
         this.status = ReviewStatus.PENDING;
     }
+    @ManyToOne
+    @JoinColumn(name = "chat_session_id")
+    private ChatSession chatSession;
 }

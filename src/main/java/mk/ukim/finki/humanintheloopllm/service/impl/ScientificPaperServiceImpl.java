@@ -96,53 +96,36 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
     private List<PaperChunk> splitIntoChunks(String text, ScientificPaper paper) {
         List<PaperChunk> chunks = new ArrayList<>();
 
-        // Split by blank lines (natural paragraph breaks in extracted PDF text)
-        String[] paragraphs = text.split("\\n\\s*\\n");
-
+        int chunkSize = 500;  // 500 карактери по chunk
         int chunkIndex = 0;
-        StringBuilder currentChunk = new StringBuilder();
 
-        for (String paragraph : paragraphs) {
-            String trimmed = paragraph.trim();
+        System.out.println("========== PDF CHUNKING DEBUG ==========");
+        System.out.println("Total text length: " + text.length());
 
-            // Skip empty or very short lines (page numbers, headers, section titles)
-            if (trimmed.length() < 50) {
+        for (int i = 0; i < text.length(); i += chunkSize) {
+            int end = Math.min(i + chunkSize, text.length());
+            String chunkContent = text.substring(i, end).trim();
+
+            // Прескокни многу кратки chunks
+            if (chunkContent.length() < 50) {
                 continue;
             }
 
-            int currentWordCount = currentChunk.toString().split("\\s+").length;
-            int paragraphWordCount = trimmed.split("\\s+").length;
-
-            if (currentWordCount + paragraphWordCount < 1000) {
-                // Add paragraph to current chunk
-                currentChunk.append(trimmed).append("\n\n");
-            } else {
-                // Save current chunk and start a new one
-                if (currentChunk.length() > 0) {
-                    PaperChunk chunk = new PaperChunk();
-                    chunk.setContent(currentChunk.toString().trim());
-                    chunk.setChunkIndex(chunkIndex++);
-                    chunk.setPageNumber(0);
-                    chunk.setPaper(paper);
-                    chunks.add(chunk);
-                }
-                currentChunk = new StringBuilder(trimmed).append("\n\n");
-            }
-        }
-
-        // Save the last remaining chunk
-        if (currentChunk.length() > 0) {
             PaperChunk chunk = new PaperChunk();
-            chunk.setContent(currentChunk.toString().trim());
+            chunk.setContent(chunkContent);
             chunk.setChunkIndex(chunkIndex);
             chunk.setPageNumber(0);
             chunk.setPaper(paper);
             chunks.add(chunk);
+
+            chunkIndex++;
         }
+
+        System.out.println("Created " + chunks.size() + " chunks");
+        System.out.println("========================================");
 
         return chunks;
     }
-
     private List<String> extractKeywords(String query) {
         String[] stopWords = {
             "what", "is", "are", "the", "a", "an", "how", "why", "when",

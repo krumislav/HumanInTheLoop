@@ -1,148 +1,593 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Human-in-the-Loop LLM Chat</title>
-    <link rel="stylesheet" th:href="@{/css/chat.css}">
+    <title>Chat - Human in the Loop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F4F4F0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #3C4B52 0%, #A9B5C2 100%);
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+            box-shadow: 0 2px 12px rgba(60, 75, 82, 0.15);
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-buttons span {
+            margin-right: 10px;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .nav-buttons a, .nav-buttons button {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .nav-buttons a:hover, .nav-buttons button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .main-container {
+            display: flex;
+            margin-top: 60px;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #3C4B52 0%, #8B7355 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .sidebar-title {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .new-chat-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-sessions {
+            margin-top: 10px;
+        }
+
+        .chat-sessions h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .chat-session-item {
+            display: block;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-session-item:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-session-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        .sidebar-button-secondary {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            margin-top: 20px;
+            transition: background 0.2s;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .sidebar-button-secondary:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-content {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 30px 30px 20px 30px;
+            background: #F4F4F0;
+            border-bottom: 1px solid #BCC7C4;
+        }
+
+        .chat-header h2 {
+            color: #3C4B52;
+            margin-bottom: 5px;
+            letter-spacing: -0.3px;
+        }
+
+        .chat-header p {
+            color: #8B7355;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+            background: #F4F4F0;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #A9B5C2 0%, #BCC7C4 100%);
+            color: #3C4B52;
+            padding: 15px 20px;
+            border-radius: 20px 20px 5px 20px;
+            margin-left: auto;
+            margin-bottom: 20px;
+            max-width: 70%;
+            text-align: right;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(169, 181, 194, 0.25);
+        }
+
+        .message {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(60, 75, 82, 0.08);
+            border: 1px solid #BCC7C4;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .message-role {
+            font-weight: 600;
+            color: #3C4B52;
+            font-size: 14px;
+        }
+
+        .message-status {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #DDD8CE;
+            color: #8B7355;
+        }
+
+        .status-approved {
+            background: #BCC7C4;
+            color: #3C4B52;
+        }
+
+        .status-rejected {
+            background: #A6A8A6;
+            color: #F4F4F0;
+        }
+
+        .status-corrected {
+            background: #A9B5C2;
+            color: white;
+        }
+
+        .message-content {
+            color: #3C4B52;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-approve {
+            background: #BCC7C4;
+            color: #3C4B52;
+        }
+
+        .btn-reject {
+            background: #A6A8A6;
+            color: white;
+        }
+
+        .btn-save {
+            background: #3C4B52;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .correction-area {
+            margin-top: 15px;
+        }
+
+        .correction-area textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #BCC7C4;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            font-size: 14px;
+            background: #F4F4F0;
+            color: #3C4B52;
+        }
+
+        .correction-area textarea:focus {
+            outline: none;
+            border-color: #A9B5C2;
+        }
+
+        .corrected-response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #DDD8CE;
+            border-radius: 8px;
+            border-left: 4px solid #A9B5C2;
+        }
+
+        .corrected-response strong {
+            color: #3C4B52;
+        }
+
+        .chat-controls {
+            padding: 20px 30px;
+            background: white;
+            border-top: 2px solid #BCC7C4;
+        }
+
+        .model-selector {
+            margin-bottom: 15px;
+        }
+
+        .model-selector label {
+            font-weight: 500;
+            margin-right: 10px;
+            color: #3C4B52;
+            font-size: 14px;
+        }
+
+        .model-selector select {
+            padding: 8px 12px;
+            border: 2px solid #BCC7C4;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #F4F4F0;
+            color: #3C4B52;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #BCC7C4;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #F4F4F0;
+            color: #3C4B52;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #A9B5C2;
+        }
+
+        .btn-send {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #3C4B52 0%, #A9B5C2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(60, 75, 82, 0.25);
+        }
+
+        .btn-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(60, 75, 82, 0.35);
+        }
+
+        .empty-chat {
+            text-align: center;
+            padding: 60px 20px;
+            color: #A6A8A6;
+        }
+    </style>
 </head>
-
 <body>
+<div class="navbar">
+    <h2>💬 Human in the Loop Chat</h2>
+    <div class="nav-buttons" id="navButtons"></div>
+</div>
 
-<div class="app-layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">HI</div>
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-icon">HI</div>
             <div>
-                <h5>Human Loop</h5>
-                <span>LLM Monitoring</span>
+                <div class="sidebar-title">Human Loop</div>
+                <div class="sidebar-subtitle">LLM Monitoring</div>
             </div>
         </div>
 
-        <a href="/chat" class="new-chat-btn">+ New Chat</a>
+        <!-- New Chat Button -->
+        <form action="/chat/new" method="post" style="margin: 0;">
+            <button type="submit" class="new-chat-btn">+ New Chat</button>
+        </form>
 
-        <!-- Navigation to Papers page -->
-        <a href="/papers" class="new-chat-btn" style="margin-top: 10px; background-color: #4a5568;">
-            📄 Scientific Papers
-        </a>
-
-        <div class="sidebar-footer">
-            <small>Project</small>
-            <p>Human-in-the-Loop</p>
-        </div>
-    </aside>
-
-    <main class="chat-main">
-
-        <header class="chat-header">
-            <div>
-                <h2>LLM Chat Review</h2>
-                <p>Send a prompt, review the model answer, approve, reject, or correct it.</p>
-            </div>
-        </header>
-
-        <section class="chat-box">
-
-            <div th:if="${param.error == 'ratelimit'}" class="rate-limit-banner">
-                Rate limit reached. Please wait a moment and try again.
-            </div>
-
-            <div th:if="${#lists.isEmpty(messages)}" class="empty-state">
-                <h3>How can I help you today?</h3>
-                <p>Send your first prompt to the model.</p>
-            </div>
-
-            <div th:each="msg : ${messages}" class="message-group">
-
-                <div class="message-row user-row">
-                    <div class="bubble user-bubble">
-                        <div class="message-label">You</div>
-                        <p th:text="${msg.userPrompt}"></p>
-                    </div>
+        <!-- Chat Sessions List -->
+        <div class="chat-sessions">
+            <h3>Recent Chats</h3>
+            <div th:if="${sessions != null and !sessions.isEmpty()}">
+                <div th:each="chatSession : ${sessions}">
+                    <a th:href="@{/chat(sessionId=${chatSession.id})}"
+                       class="chat-session-item"
+                       th:classappend="${chatSession.id == currentSession.id} ? 'active' : ''"
+                       th:text="${chatSession.title}">
+                        Chat Title
+                    </a>
                 </div>
+            </div>
+            <div th:if="${sessions == null or sessions.isEmpty()}" style="opacity: 0.6; font-size: 12px; padding: 10px;">
+                No chats yet
+            </div>
+        </div>
 
-                <div class="message-row assistant-row">
-                    <div class="avatar">AI</div>
+        <a href="/papers" class="sidebar-button-secondary">📄 Scientific Papers</a>
+    </div>
 
-                    <div class="bubble assistant-bubble">
-                        <div class="message-top">
-                            <div class="message-label">Assistant</div>
+    <div class="chat-content">
+        <div class="chat-header">
+            <h2 th:text="${currentSession.title}">Chat Title</h2>
+            <p>Send a prompt, review the model answer, approve, reject, or correct it.</p>
+        </div>
 
-                            <span class="status-badge"
-                                  th:text="${msg.status}"
-                                  th:classappend="${msg.status.name() == 'APPROVED'} ? ' approved' :
-                                                  (${msg.status.name() == 'REJECTED'} ? ' rejected' :
-                                                  (${msg.status.name() == 'CORRECTED'} ? ' corrected' : ' pending'))">
-                            </span>
-                        </div>
+        <div class="chat-messages">
+            <!-- Empty State -->
+            <div th:if="${messages.isEmpty()}" class="empty-chat">
+                <p>👋 Start a new conversation!</p>
+            </div>
 
-                        <small class="model-name" th:text="${msg.modelName}"></small>
+            <!-- Messages -->
+            <div th:each="msg : ${messages}">
+                <div class="user-message" th:text="${msg.userPrompt}"></div>
 
-                        <p class="assistant-response" th:text="${msg.assistantResponse}"></p>
+                <div class="message">
+                    <div class="message-header">
+                        <span class="message-role">ASSISTANT</span>
+                        <span th:class="${'message-status ' + (msg.status.name() == 'PENDING' ? 'status-pending' : (msg.status.name() == 'APPROVED' ? 'status-approved' : (msg.status.name() == 'REJECTED' ? 'status-rejected' : 'status-corrected')))}"
+                              th:text="${msg.status}">
+                        </span>
+                    </div>
 
-                        <div th:if="${msg.correctedResponse != null}" class="corrected-box">
-                            <div class="message-label">Corrected answer</div>
-                            <p th:text="${msg.correctedResponse}"></p>
-                        </div>
+                    <div class="message-content" th:text="${msg.assistantResponse}"></div>
 
-                        <div th:if="${msg.status.name() == 'PENDING'}">
-
-                            <div class="review-actions">
-                                <form th:action="@{/chat/{id}/approve(id=${msg.id})}" method="post">
-                                    <button class="approve-btn" type="submit">Correct answer</button>
-                                </form>
-
-                                <form th:action="@{/chat/{id}/reject(id=${msg.id})}" method="post">
-                                    <button class="reject-btn" type="submit">Wrong answer</button>
-                                </form>
-                            </div>
-
-                            <form th:action="@{/chat/{id}/correct(id=${msg.id})}" method="post" class="correction-form">
-                                <textarea name="correctedResponse"
-                                          placeholder="Write the corrected answer here..."
-                                          required></textarea>
-                                <button class="correct-btn" type="submit">Save fixed answer</button>
+                    <div th:if="${msg.status == T(mk.ukim.finki.humanintheloopllm.enums.ReviewStatus).PENDING}">
+                        <div class="message-actions">
+                            <form th:action="@{/chat/{id}/approve(id=${msg.id})}" method="post" style="display: inline;">
+                                <input type="hidden" name="sessionId" th:value="${currentSession.id}">
+                                <button type="submit" class="btn-action btn-approve">Correct answer</button>
                             </form>
-
+                            <form th:action="@{/chat/{id}/reject(id=${msg.id})}" method="post" style="display: inline;">
+                                <input type="hidden" name="sessionId" th:value="${currentSession.id}">
+                                <button type="submit" class="btn-action btn-reject">Wrong answer</button>
+                            </form>
                         </div>
 
-                        <div th:if="${msg.status.name() != 'PENDING'}" class="review-complete">
-                            Review saved.
+                        <div class="correction-area">
+                            <form th:action="@{/chat/{id}/correct(id=${msg.id})}" method="post">
+                                <input type="hidden" name="sessionId" th:value="${currentSession.id}">
+                                <textarea name="correctedResponse" placeholder="Write the corrected answer here..."></textarea>
+                                <button type="submit" class="btn-action btn-save" style="margin-top: 10px;">Save fixed answer</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div th:if="${msg.status == T(mk.ukim.finki.humanintheloopllm.enums.ReviewStatus).CORRECTED}">
+                        <div class="corrected-response">
+                            <strong>✓ Corrected Response:</strong><br>
+                            <span th:text="${msg.correctedResponse}"></span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
+        <div class="chat-controls">
+            <div class="model-selector">
+                <label for="modelSelect">Choose model</label>
+                <select id="modelSelect" name="model">
+                    <option th:each="m : ${modelsss}" th:value="${m.modelName}" th:text="${m.description}"></option>
+                </select>
             </div>
 
-        </section>
-
-        <section class="input-area">
-            <form th:action="@{/chat/send}" method="post" class="prompt-form">
-
-                <div class="model-wrapper">
-                    <label for="model">Choose model</label>
-                    <select name="model" id="model" class="model-select">
-                        <option th:each="model : ${modelsss}"
-                                th:value="${model.model}"
-                                th:text="${model.modelName}"
-                                th:selected="${model.model == 'tencent/hy3-preview:free'}">
-                        </option>
-                    </select>
+            <form action="/chat/send" method="post">
+                <input type="hidden" name="sessionId" th:value="${currentSession.id}">
+                <div class="chat-input-container">
+                    <input type="text" name="prompt" class="chat-input" placeholder="Send a message..." required>
+                    <input type="hidden" name="model" id="hiddenModel">
+                    <button type="submit" class="btn-send">Send</button>
                 </div>
-
-                <textarea name="prompt" placeholder="Send a message..." required></textarea>
-
-                <button type="submit">Send</button>
             </form>
-        </section>
-
-    </main>
-
+        </div>
+    </div>
 </div>
 
 <script>
-    const chatBox = document.querySelector('.chat-box');
-    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    const username = localStorage.getItem('username');
+    const navButtons = document.getElementById('navButtons');
+
+    if (token && username) {
+        let html = '<span>Hello, ' + username + '</span>';
+        if (role && role.includes('ADMIN')) {
+            html += '<a href="/dashboard">📊 Dashboard</a>';
+            html += '<a href="/menu">🏠 Menu</a>';
+        }
+        html += '<button onclick="logout()">Logout</button>';
+        navButtons.innerHTML = html;
+    } else {
+        navButtons.innerHTML = '<a href="/login">Login</a>';
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/';
+    }
+
+    document.getElementById('modelSelect').addEventListener('change', function () {
+        document.getElementById('hiddenModel').value = this.value;
+    });
+    document.getElementById('hiddenModel').value = document.getElementById('modelSelect').value;
 </script>
 </body>
 </html>
