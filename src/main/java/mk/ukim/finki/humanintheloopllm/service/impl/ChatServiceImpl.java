@@ -5,7 +5,6 @@ import mk.ukim.finki.humanintheloopllm.enums.ReviewStatus;
 import mk.ukim.finki.humanintheloopllm.model.ChatMessage;
 import mk.ukim.finki.humanintheloopllm.model.ChatSession;
 import mk.ukim.finki.humanintheloopllm.model.PaperChunk;
-import mk.ukim.finki.humanintheloopllm.model.ScientificPaper;
 import mk.ukim.finki.humanintheloopllm.model.User;
 import mk.ukim.finki.humanintheloopllm.repository.ChatMessageRepository;
 import mk.ukim.finki.humanintheloopllm.repository.ChatSessionRepository;
@@ -185,16 +184,7 @@ public class ChatServiceImpl implements ChatService {
             String shortContent = chunk.getContent().length() > 300
                     ? chunk.getContent().substring(0, 300) + "..."
                     : chunk.getContent();
-
-            ScientificPaper paper = chunk.getPaper();
-            if (paper != null) {
-                context.append("Extract ").append(i + 1)
-                        .append(" — from \"").append(paper.getTitle()).append("\"")
-                        .append(" by ").append(paper.getAuthor())
-                        .append(" (").append(paper.getYear()).append("):\n");
-            } else {
-                context.append("Extract ").append(i + 1).append(":\n");
-            }
+            context.append("Extract ").append(i + 1).append(":\n");
             context.append(shortContent).append("\n\n");
         }
 
@@ -203,7 +193,8 @@ public class ChatServiceImpl implements ChatService {
 
     private String buildPromptWithContext(String context, String userPrompt) {
         return String.format("""
-            You are a helpful scientific assistant. Use the following excerpts from scientific papers to answer the question. Always mention the paper title and author when you use information from it. Give a direct, concise answer. Do not show your reasoning process.
+            You are a helpful scientific assistant. Use the following excerpts from scientific papers to help answer the question. You may also use your general knowledge to supplement the answer.
+            Give a direct, concise answer. Do not show your reasoning process.
 
             %s
 
