@@ -5,6 +5,7 @@ import mk.ukim.finki.humanintheloopllm.enums.ReviewStatus;
 import mk.ukim.finki.humanintheloopllm.model.ChatMessage;
 import mk.ukim.finki.humanintheloopllm.model.ChatSession;
 import mk.ukim.finki.humanintheloopllm.model.PaperChunk;
+import mk.ukim.finki.humanintheloopllm.model.ScientificPaper;
 import mk.ukim.finki.humanintheloopllm.model.User;
 import mk.ukim.finki.humanintheloopllm.repository.ChatMessageRepository;
 import mk.ukim.finki.humanintheloopllm.repository.ChatSessionRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +65,33 @@ public class ChatServiceImpl implements ChatService {
         try {
             ChatSession session = getSessionById(sessionId);
 
+            // Check if this question was already approved or corrected
+            Optional<ChatMessage> existing = chatMessageRepository.findFirstByUserPromptIgnoreCaseAndStatusIn(
+                    userPrompt, List.of(ReviewStatus.APPROVED, ReviewStatus.CORRECTED));
+
+            if (existing.isPresent()) {
+                ChatMessage prev = existing.get();
+                String savedAnswer = prev.getStatus() == ReviewStatus.CORRECTED && prev.getCorrectedResponse() != null
+                        ? prev.getCorrectedResponse()
+                        : prev.getAssistantResponse();
+
+                ChatMessage message = new ChatMessage();
+                message.setUserPrompt(userPrompt);
+                message.setAssistantResponse(savedAnswer);
+                message.setModelName(prev.getModelName());
+                message.setStatus(ReviewStatus.APPROVED);
+                message.setChatSession(session);
+                chatMessageRepository.save(message);
+
+                if (session.getTitle().equals("New Chat")) {
+                    String title = userPrompt.length() > 40 ? userPrompt.substring(0, 40) + "..." : userPrompt;
+                    session.setTitle(title);
+                    session.setUpdatedAt(java.time.LocalDateTime.now());
+                    chatSessionRepository.save(session);
+                }
+                return;
+            }
+
             // Пребарај релевантни chunks од научните трудови
             List<PaperChunk> relevantChunks = findRelevantChunks(userPrompt);
 
@@ -72,7 +101,7 @@ public class ChatServiceImpl implements ChatService {
                 String context = buildContextFromChunks(relevantChunks);
                 finalPrompt = buildPromptWithContext(context, userPrompt);
             } else {
-                finalPrompt = userPrompt; // Директно прашање ако нема chunks
+                finalPrompt = "You are a helpful assistant. Give a direct, concise answer. Do not show your reasoning process.\n\n" + userPrompt;
             }
 
             // Прати до LLM
@@ -153,11 +182,19 @@ public class ChatServiceImpl implements ChatService {
 
         for (int i = 0; i < chunks.size(); i++) {
             PaperChunk chunk = chunks.get(i);
-            // Скрати го chunk-от на 300 карактери за да не е предолг prompt
             String shortContent = chunk.getContent().length() > 300
                     ? chunk.getContent().substring(0, 300) + "..."
                     : chunk.getContent();
-            context.append("Extract ").append(i + 1).append(":\n");
+
+            ScientificPaper paper = chunk.getPaper();
+            if (paper != null) {
+                context.append("Extract ").append(i + 1)
+                        .append(" — from \"").append(paper.getTitle()).append("\"")
+                        .append(" by ").append(paper.getAuthor())
+                        .append(" (").append(paper.getYear()).append("):\n");
+            } else {
+                context.append("Extract ").append(i + 1).append(":\n");
+            }
             context.append(shortContent).append("\n\n");
         }
 
@@ -166,13 +203,11 @@ public class ChatServiceImpl implements ChatService {
 
     private String buildPromptWithContext(String context, String userPrompt) {
         return String.format("""
-            You are a scientific assistant. Answer based ONLY on the following information from scientific papers:
-            
+            You are a helpful scientific assistant. Use the following excerpts from scientific papers to answer the question. Always mention the paper title and author when you use information from it. Give a direct, concise answer. Do not show your reasoning process.
+
             %s
-            
+
             Question: %s
-            
-            IMPORTANT: Answer only based on the information provided above. If there is no relevant information, say "I cannot answer based on the attached papers."
             """, context, userPrompt);
     }
 
@@ -248,6 +283,11 @@ public class ChatServiceImpl implements ChatService {
         message.setStatus(ReviewStatus.CORRECTED);
         message.setReviewedAt(LocalDateTime.now());
         chatMessageRepository.save(message);
+    }
+
+    @Override
+    public void deleteMessage(Long id) {
+        chatMessageRepository.deleteById(id);
     }
 
     @Override

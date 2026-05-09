@@ -43,4 +43,13 @@ public class ScientificPaperController {
         paperService.deletePaper(id);
         return "redirect:/papers?deleted=true";
     }
+
+    @PostMapping("/edit/{id}")
+    public String editPaper(@PathVariable Long id,
+                            @RequestParam String title,
+                            @RequestParam String author,
+                            @RequestParam Integer year) {
+        paperService.updatePaper(id, title, author, year);
+        return "redirect:/papers?updated=true";
+    }
 }

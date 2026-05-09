@@ -91,6 +91,16 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
         paperRepository.deleteById(id);
     }
 
+    @Override
+    public void updatePaper(Long id, String title, String author, Integer year) {
+        ScientificPaper paper = paperRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paper not found"));
+        paper.setTitle(title);
+        paper.setAuthor(author);
+        paper.setYear(year);
+        paperRepository.save(paper);
+    }
+
     // ── Helpers ──────────────────────────────────────────
 
     private List<PaperChunk> splitIntoChunks(String text, ScientificPaper paper) {

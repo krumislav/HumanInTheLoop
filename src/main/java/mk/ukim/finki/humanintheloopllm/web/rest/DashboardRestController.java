@@ -5,9 +5,7 @@ import mk.ukim.finki.humanintheloopllm.model.ChatMessage;
 import mk.ukim.finki.humanintheloopllm.service.ChatService;
 import mk.ukim.finki.humanintheloopllm.web.dto.DashboardStats;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +26,11 @@ public class DashboardRestController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<ChatMessage> getAllMessages() {
         return chatService.getAllMessages();
+    }
+
+    @DeleteMapping("/messages/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteMessage(@PathVariable Long id) {
+        chatService.deleteMessage(id);
     }
 }

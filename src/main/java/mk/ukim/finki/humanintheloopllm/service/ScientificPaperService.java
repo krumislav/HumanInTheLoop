@@ -15,4 +15,6 @@ public interface ScientificPaperService {
     List<PaperChunk> searchChunks(String query);
 
     void deletePaper(Long id);
+
+    void updatePaper(Long id, String title, String author, Integer year);
 }

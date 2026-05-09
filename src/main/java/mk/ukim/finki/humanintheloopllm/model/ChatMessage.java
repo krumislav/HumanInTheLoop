@@ -1,5 +1,6 @@
 package mk.ukim.finki.humanintheloopllm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -45,6 +46,7 @@ public class ChatMessage {
         this.createdAt = LocalDateTime.now();
         this.status = ReviewStatus.PENDING;
     }
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "chat_session_id")
     private ChatSession chatSession;

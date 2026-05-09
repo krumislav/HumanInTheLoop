@@ -20,6 +20,7 @@ public interface ChatService {
     void approveMessage(Long id);
     void rejectMessage(Long id);
     void correctMessage(Long id, String correctedResponse);
+    void deleteMessage(Long id);
     void renameSession(Long sessionId, String newTitle);
 
     DashboardStats getDashboardStats();

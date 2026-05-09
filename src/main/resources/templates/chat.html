@@ -588,6 +588,9 @@
         document.getElementById('hiddenModel').value = this.value;
     });
     document.getElementById('hiddenModel').value = document.getElementById('modelSelect').value;
+
+    const chatMessages = document.querySelector('.chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 </script>
 </body>
 </html>

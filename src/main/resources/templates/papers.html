@@ -263,6 +263,76 @@
             background: #8B7355;
         }
 
+        .btn-edit {
+            background: #A9B5C2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+
+        .btn-edit:hover {
+            background: #3C4B52;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #BCC7C4;
+            width: 100%;
+        }
+
+        .edit-form.open {
+            display: block;
+        }
+
+        .edit-form .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .edit-form .form-row input {
+            flex: 1;
+            min-width: 150px;
+            padding: 8px 12px;
+            border: 2px solid #BCC7C4;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: #3C4B52;
+        }
+
+        .btn-save {
+            background: #3C4B52;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .paper-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .paper-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
         .alert {
             padding: 15px;
             border-radius: 8px;
@@ -331,6 +401,9 @@
         <div th:if="${param.deleted}" class="alert alert-success">
             ✓ Paper deleted successfully!
         </div>
+        <div th:if="${param.updated}" class="alert alert-success">
+            ✓ Paper updated successfully!
+        </div>
 
         <!-- Upload Section -->
         <div class="upload-section">
@@ -366,16 +439,30 @@
 
             <div th:if="${papers != null && !papers.isEmpty()}">
                 <div th:each="paper : ${papers}" class="paper-item">
-                    <div class="paper-info">
-                        <h3 th:text="${paper.title}">Paper Title</h3>
-                        <p>
-                            <strong>Author:</strong> <span th:text="${paper.author}">Author Name</span> |
-                            <strong>Year:</strong> <span th:text="${paper.year}">2024</span> |
-                            <strong>Uploaded:</strong> <span th:text="${#temporals.format(paper.uploadedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 12:00</span>
-                        </p>
+                    <div class="paper-item-top">
+                        <div class="paper-info">
+                            <h3 th:text="${paper.title}">Paper Title</h3>
+                            <p>
+                                <strong>Author:</strong> <span th:text="${paper.author}">Author Name</span> |
+                                <strong>Year:</strong> <span th:text="${paper.year}">2024</span> |
+                                <strong>Uploaded:</strong> <span th:text="${#temporals.format(paper.uploadedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 12:00</span>
+                            </p>
+                        </div>
+                        <div>
+                            <button class="btn-edit" th:onclick="'toggleEdit(' + ${paper.id} + ')'">✏️ Edit</button>
+                            <form th:action="@{/papers/delete/{id}(id=${paper.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this paper?')">🗑️ Delete</button>
+                            </form>
+                        </div>
                     </div>
-                    <form th:action="@{/papers/delete/{id}(id=${paper.id})}" method="post" style="display: inline;">
-                        <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this paper?')">🗑️ Delete</button>
+                    <form th:action="@{/papers/edit/{id}(id=${paper.id})}" method="post"
+                          th:id="'editForm-' + ${paper.id}" class="edit-form">
+                        <div class="form-row">
+                            <input type="text" name="title" th:value="${paper.title}" placeholder="Title" required>
+                            <input type="text" name="author" th:value="${paper.author}" placeholder="Author" required>
+                            <input type="number" name="year" th:value="${paper.year}" placeholder="Year" min="1900" max="2100" required>
+                        </div>
+                        <button type="submit" class="btn-save">💾 Save Changes</button>
                     </form>
                 </div>
             </div>
@@ -411,6 +498,11 @@
     function logout() {
         localStorage.clear();
         window.location.href = '/';
+    }
+
+    function toggleEdit(id) {
+        const form = document.getElementById('editForm-' + id);
+        form.classList.toggle('open');
     }
 </script>
 </body>

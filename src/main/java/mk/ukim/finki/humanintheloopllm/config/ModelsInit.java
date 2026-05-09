@@ -18,11 +18,10 @@ public class ModelsInit {
         return args -> {
             if (modelRepository.count() == 0) {
                 List<ModelAi> models = List.of(
-                        createModel("openai/gpt-4o", "GPT-4 Omni"),
-                        createModel("anthropic/claude-3.5-sonnet", "Claude 3.5 Sonnet"),
-                        createModel("google/gemini-pro", "Google Gemini Pro"),
-                        createModel("meta-llama/llama-3.1-70b-instruct", "Llama 3.1 70B"),
-                        createModel("mistralai/mistral-large", "Mistral Large")
+                        createModel("meta-llama/llama-3.3-70b-instruct:free", "Llama 3.3 70B (Free)"),
+                        createModel("tencent/hy3-preview:free", "Tencent hy3 (Free)"),
+                        createModel("mistralai/mistral-small-3.2-24b-instruct:free", "Mistral Small (Free)"),
+                        createModel("microsoft/phi-4-reasoning-plus:free", "Microsoft Phi-4 (Free)")
                 );
                 modelRepository.saveAll(models);
             }
