@@ -23,21 +23,18 @@ public class ChatController {
 
     private final ChatService chatService;
     private final ModelAiService modelAiService;
-    private final UserRepository userRepository; // ← ДОДАЈ ГО ОВА
+    private final UserRepository userRepository;
 
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             Object principal = auth.getPrincipal();
 
-            // Ако Principal е UserDetails, извади го username и најди го User
             if (principal instanceof UserDetails) {
                 String username = ((UserDetails) principal).getUsername();
-                // Мора да имаш UserRepository за да го најдеш User-от
                 return userRepository.findByUsername(username).orElse(null);
             }
 
-            // Ако Principal е User директно
             if (principal instanceof User) {
                 return (User) principal;
             }
@@ -48,7 +45,6 @@ public class ChatController {
     public String chatPage(@RequestParam(required = false) Long sessionId, Model model) {
         User currentUser = getCurrentUser();
 
-        // DEBUGGING - провери што враќа
         System.out.println("==================== DEBUG ====================");
         System.out.println("Current User: " + currentUser);
 
@@ -60,7 +56,6 @@ public class ChatController {
 
         List<ChatSession> sessions;
 
-        // За најавени корисници - прикажи само нивни chatови
         if (currentUser != null) {
             sessions = chatService.getSessionsByUser(currentUser);
 
@@ -74,7 +69,6 @@ public class ChatController {
                 }
             }
         } else {
-            // За guest корисници
             sessions = chatService.getAllSessions();
 
             if (sessionId == null) {
@@ -90,7 +84,6 @@ public class ChatController {
 
         ChatSession currentSession = chatService.getSessionById(sessionId);
 
-        // Security check - провери дали session-от припаѓа на корисникот
         if (currentUser != null && currentSession.getUser() != null &&
                 !currentSession.getUser().getId().equals(currentUser.getId())) {
             return "redirect:/chat";
@@ -119,7 +112,6 @@ public class ChatController {
                               @RequestParam String model) {
         User currentUser = getCurrentUser();
 
-        // Security check
         ChatSession session = chatService.getSessionById(sessionId);
         if (currentUser != null && session.getUser() != null &&
                 !session.getUser().getId().equals(currentUser.getId())) {

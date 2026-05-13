@@ -30,17 +30,13 @@ public class OpenRouterServiceImpl implements OpenRouterService {
     @Override
     public String ask(String prompt, String model) {
 
-        // 1. Search the paper chunks for content relevant to the question
         List<PaperChunk> relevantChunks = paperService.searchChunks(prompt);
 
-        // 2. Build the system prompt
         String systemPrompt;
 
         if (relevantChunks.isEmpty()) {
-            // No relevant papers found — answer from general knowledge
             systemPrompt = "You are a helpful assistant.";
         } else {
-            // Build context from the relevant chunks
             StringBuilder context = new StringBuilder();
             context.append("You are a helpful assistant. Answer the user's question based ONLY on the following excerpts from scientific papers. ");
             context.append("Always mention which paper the information comes from.\n\n");
@@ -64,7 +60,6 @@ public class OpenRouterServiceImpl implements OpenRouterService {
             systemPrompt = context.toString();
         }
 
-        // 3. Send to OpenRouter with the enriched system prompt
         Map<String, Object> body = Map.of(
                 "model", model,
                 "messages", List.of(

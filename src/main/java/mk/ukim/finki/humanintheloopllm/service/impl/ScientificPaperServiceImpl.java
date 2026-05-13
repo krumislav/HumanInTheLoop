@@ -27,7 +27,6 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
     @Override
     public ScientificPaper uploadPaper(MultipartFile file, String title, String author, Integer year) {
 
-        // 1. Save the paper info to the database first
         ScientificPaper paper = new ScientificPaper();
         paper.setTitle(title);
         paper.setAuthor(author);
@@ -35,14 +34,12 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
         paper.setFileName(file.getOriginalFilename());
         ScientificPaper savedPaper = paperRepository.save(paper);
 
-        // 2. Extract text from the PDF using PDFBox
         try {
             PDDocument document = Loader.loadPDF(file.getBytes());
             PDFTextStripper stripper = new PDFTextStripper();
             String fullText = stripper.getText(document);
             document.close();
 
-            // 3. Split the text into chunks and save each one
             List<PaperChunk> chunks = splitIntoChunks(fullText, savedPaper);
             chunkRepository.saveAll(chunks);
 
@@ -62,27 +59,23 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
     public List<PaperChunk> searchChunks(String query) {
         List<String> keywords = extractKeywords(query);
 
-        // Search for each keyword and collect all results
         List<PaperChunk> results = new ArrayList<>();
 
         for (String keyword : keywords) {
             List<PaperChunk> found = chunkRepository.findByContentContainingIgnoreCase(keyword);
             for (PaperChunk chunk : found) {
-                // Avoid adding the same chunk twice
                 if (!results.contains(chunk)) {
                     results.add(chunk);
                 }
             }
         }
 
-        // Sort by relevance — chunks that contain MORE keywords come first
         results.sort((a, b) -> {
             int scoreB = countKeywordMatches(b.getContent(), keywords);
             int scoreA = countKeywordMatches(a.getContent(), keywords);
             return Integer.compare(scoreB, scoreA);
         });
 
-        // Return max 5 most relevant chunks so the AI prompt doesn't get too long
         return results.stream().limit(5).toList();
     }
 
@@ -101,12 +94,11 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
         paperRepository.save(paper);
     }
 
-    // ── Helpers ──────────────────────────────────────────
 
     private List<PaperChunk> splitIntoChunks(String text, ScientificPaper paper) {
         List<PaperChunk> chunks = new ArrayList<>();
 
-        int chunkSize = 500;  // 500 карактери по chunk
+        int chunkSize = 500;
         int chunkIndex = 0;
 
         System.out.println("========== PDF CHUNKING DEBUG ==========");
@@ -116,7 +108,6 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
             int end = Math.min(i + chunkSize, text.length());
             String chunkContent = text.substring(i, end).trim();
 
-            // Прескокни многу кратки chunks
             if (chunkContent.length() < 50) {
                 continue;
             }
@@ -149,7 +140,6 @@ public class ScientificPaperServiceImpl implements ScientificPaperService {
 
         List<String> keywords = new ArrayList<>();
         for (String word : words) {
-            // Skip stop words and very short words
             if (word.length() < 4) continue;
             if (Arrays.asList(stopWords).contains(word)) continue;
             if (!keywords.contains(word)) {

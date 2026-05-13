@@ -64,7 +64,6 @@ public class ChatServiceImpl implements ChatService {
         try {
             ChatSession session = getSessionById(sessionId);
 
-            // Check if this question was already approved or corrected
             Optional<ChatMessage> existing = chatMessageRepository.findFirstByUserPromptIgnoreCaseAndStatusIn(
                     userPrompt, List.of(ReviewStatus.APPROVED, ReviewStatus.CORRECTED));
 
@@ -91,10 +90,8 @@ public class ChatServiceImpl implements ChatService {
                 return;
             }
 
-            // Пребарај релевантни chunks од научните трудови
             List<PaperChunk> relevantChunks = findRelevantChunks(userPrompt);
 
-            // Изгради prompt (со или без контекст)
             String finalPrompt;
             if (!relevantChunks.isEmpty()) {
                 String context = buildContextFromChunks(relevantChunks);
@@ -103,7 +100,6 @@ public class ChatServiceImpl implements ChatService {
                 finalPrompt = "You are a helpful assistant. Give a direct, concise answer. Do not show your reasoning process.\n\n" + userPrompt;
             }
 
-            // Прати до LLM
             String assistantResponse = callOpenRouterAPI(finalPrompt, modelName);
 
             ChatMessage message = new ChatMessage();
@@ -116,7 +112,6 @@ public class ChatServiceImpl implements ChatService {
 
             chatMessageRepository.save(message);
 
-            // Auto-rename session based on first message
             if (session.getTitle().equals("New Chat")) {
                 String title = userPrompt.length() > 40
                         ? userPrompt.substring(0, 40) + "..."
@@ -136,15 +131,12 @@ public class ChatServiceImpl implements ChatService {
         System.out.println("========== SEARCH DEBUG ==========");
         System.out.println("Query: " + query);
 
-        // Подели го query-то и филтрирај stopwords
         String[] allWords = query.toLowerCase().split("\\s+");
 
-        // Филтрирај помошни зборови (stopwords)
         List<String> stopwords = List.of("tell", "me", "about", "what", "is", "the", "a", "an", "how", "why", "when", "where", "at", "in", "on", "to", "of", "for", "with");
         List<String> keywords = new java.util.ArrayList<>();
 
         for (String word : allWords) {
-            // Отстрани интерпункција
             String cleanWord = word.replaceAll("[^a-z0-9]", "");
             if (!stopwords.contains(cleanWord) && cleanWord.length() > 2) {
                 keywords.add(cleanWord);
@@ -211,7 +203,7 @@ public class ChatServiceImpl implements ChatService {
 
         Map<String, Object> requestBody = Map.of(
                 "model", model,
-                "max_tokens", 500, // Намалено за да се избегне token limit
+                "max_tokens", 500,
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 )

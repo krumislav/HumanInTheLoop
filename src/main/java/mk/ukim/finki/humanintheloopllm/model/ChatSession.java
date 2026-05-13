@@ -30,7 +30,7 @@ public class ChatSession {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // ← БЕЗ nullable = false
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "chatSession", cascade = CascadeType.ALL)

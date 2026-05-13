@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findAllByOrderByCreatedAtAsc();
-    List<ChatMessage> findAllByOrderByCreatedAtDesc(); // ← ДОДАЈ ГО ОВА
+    List<ChatMessage> findAllByOrderByCreatedAtDesc();
     List<ChatMessage> findByChatSessionOrderByCreatedAtAsc(ChatSession chatSession);
     long countByStatus(ReviewStatus status);
 

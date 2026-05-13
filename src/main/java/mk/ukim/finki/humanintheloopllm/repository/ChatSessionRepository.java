@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> {
     List<ChatSession> findAllByOrderByUpdatedAtDesc();
-    List<ChatSession> findByUserOrderByUpdatedAtDesc(User user); // ← За user-specific chatovi
+
+    List<ChatSession> findByUserOrderByUpdatedAtDesc(User user);
 }
