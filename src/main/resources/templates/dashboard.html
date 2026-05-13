@@ -320,7 +320,6 @@
         <p>Monitor and review LLM chat responses</p>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card">
             <h3>Total Messages</h3>
@@ -344,11 +343,9 @@
         </div>
     </div>
 
-    <!-- Messages Section -->
     <div class="messages-section">
         <h2>All Messages</h2>
 
-        <!-- Filter Buttons -->
         <div class="filter-buttons">
             <button class="filter-btn active" onclick="filterMessages('ALL')">All</button>
             <button class="filter-btn" onclick="filterMessages('PENDING')">Pending</button>
@@ -357,7 +354,6 @@
             <button class="filter-btn" onclick="filterMessages('CORRECTED')">Corrected</button>
         </div>
 
-        <!-- Messages List -->
         <div id="messagesList">
             <div class="empty-state">
                 <p>Loading messages...</p>
@@ -393,7 +389,6 @@
     let allMessages = [];
     let currentFilter = 'ALL';
 
-    // Fetch Dashboard Stats
     async function fetchStats() {
         try {
             const response = await fetch('/api/dashboard/stats', {
@@ -413,7 +408,6 @@
         }
     }
 
-    // Fetch All Messages
     async function fetchMessages() {
         try {
             const response = await fetch('/api/dashboard/messages', {
@@ -429,7 +423,6 @@
         }
     }
 
-    // Render Messages
     function renderMessages() {
         const messagesList = document.getElementById('messagesList');
 
@@ -481,11 +474,9 @@
         messagesList.innerHTML = html;
     }
 
-    // Filter Messages
     function filterMessages(status) {
         currentFilter = status;
 
-        // Update active button
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -494,7 +485,6 @@
         renderMessages();
     }
 
-    // Escape HTML to prevent XSS
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -511,11 +501,9 @@
         await fetchMessages();
     }
 
-    // Initial load
     fetchStats();
     fetchMessages();
 
-    // Auto-refresh every 30 seconds
     setInterval(() => {
         fetchStats();
         fetchMessages();

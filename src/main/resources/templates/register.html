@@ -210,18 +210,15 @@
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
 
-    // Hide previous messages
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       errorDiv.textContent = 'Passwords do not match!';
       errorDiv.style.display = 'block';
       return;
     }
 
-    // Validate password length
     if (password.length < 6) {
       errorDiv.textContent = 'Password must be at least 6 characters long!';
       errorDiv.style.display = 'block';
@@ -243,7 +240,6 @@
         successDiv.textContent = 'Account created successfully! Redirecting to login...';
         successDiv.style.display = 'block';
 
-        // Redirect to login after 2 seconds
         setTimeout(() => {
           window.location.href = '/login';
         }, 2000);

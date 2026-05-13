@@ -458,12 +458,10 @@
             </div>
         </div>
 
-        <!-- New Chat Button -->
         <form action="/chat/new" method="post" style="margin: 0;">
             <button type="submit" class="new-chat-btn">+ New Chat</button>
         </form>
 
-        <!-- Chat Sessions List -->
         <div class="chat-sessions">
             <h3>Recent Chats</h3>
             <div th:if="${sessions != null and !sessions.isEmpty()}">
@@ -491,12 +489,10 @@
         </div>
 
         <div class="chat-messages">
-            <!-- Empty State -->
             <div th:if="${messages.isEmpty()}" class="empty-chat">
                 <p>👋 Start a new conversation!</p>
             </div>
 
-            <!-- Messages -->
             <div th:each="msg : ${messages}">
                 <div class="user-message" th:text="${msg.userPrompt}"></div>
 

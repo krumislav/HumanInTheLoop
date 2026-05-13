@@ -388,7 +388,6 @@
             <p>Upload and manage scientific papers for LLM analysis</p>
         </div>
 
-        <!-- Success/Error Messages -->
         <div th:if="${param.success}" class="alert alert-success">
             ✓ Paper uploaded successfully!
         </div>
@@ -405,7 +404,6 @@
             ✓ Paper updated successfully!
         </div>
 
-        <!-- Upload Section -->
         <div class="upload-section">
             <h2>Upload New Paper</h2>
             <form action="/papers/upload" method="post" enctype="multipart/form-data">
@@ -433,7 +431,6 @@
             </form>
         </div>
 
-        <!-- Papers List -->
         <div class="papers-list">
             <h2>Uploaded Papers</h2>
 
