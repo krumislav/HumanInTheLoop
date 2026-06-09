@@ -541,7 +541,7 @@
             <div class="model-selector">
                 <label for="modelSelect">Choose model</label>
                 <select id="modelSelect" name="model">
-                    <option th:each="m : ${modelsss}" th:value="${m.modelName}" th:text="${m.description}"></option>
+                    <option th:each="m : ${modelsss}" th:value="${m.modelName}" th:text="${m.description}" th:selected="${m.modelName == 'nvidia/nemotron-3-super-120b-a12b:free'}"></option>
                 </select>
             </div>
 
